@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Converter</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #4e73df, #1cc88a);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .converter {
+        background: white;
+        padding: 25px;
+        border-radius: 10px;
+        width: 320px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    select, input, button {
+        width: 100%;
+        padding: 8px;
+        margin: 8px 0;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+
+    button {
+        background: #4e73df;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #2e59d9;
+    }
+
+    .result {
+        margin-top: 10px;
+        font-weight: bold;
+        text-align: center;
+        font-size: 16px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="converter">
+    <h2>Unit Converter</h2>
+
+    <select id="category" onchange="updateUnits()">
+        <option value="length">Length</option>
+        <option value="weight">Weight</option>
+        <option value="temperature">Temperature</option>
+    </select>
+
+    <input type="number" id="inputValue" placeholder="Enter value">
+
+    <select id="fromUnit"></select>
+    <select id="toUnit"></select>
+
+    <button onclick="convert()">Convert</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+    const units = {
+        length: ["Meters", "Kilometers", "Miles", "Feet"],
+        weight: ["Kilograms", "Grams", "Pounds"],
+        temperature: ["Celsius", "Fahrenheit", "Kelvin"]
+    };
+
+    function updateUnits() {
+        const category = document.getElementById("category").value;
+        const fromUnit = document.getElementById("fromUnit");
+        const toUnit = document.getElementById("toUnit");
+
+        fromUnit.innerHTML = "";
+        toUnit.innerHTML = "";
+
+        units[category].forEach(unit => {
+            fromUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+            toUnit.innerHTML += `<option value="${unit}">${unit}</option>`;
+        });
+    }
+
+    function convert() {
+        const category = document.getElementById("category").value;
+        const value = parseFloat(document.getElementById("inputValue").value);
+        const from = document.getElementById("fromUnit").value;
+        const to = document.getElementById("toUnit").value;
+
+        if (isNaN(value)) {
+            document.getElementById("result").innerText = "Please enter a valid number.";
+            return;
+        }
+
+        let result;
+
+        if (category === "length") {
+            const lengthInMeters = {
+                "Meters": 1,
+                "Kilometers": 1000,
+                "Miles": 1609.34,
+                "Feet": 0.3048
+            };
+            result = value * lengthInMeters[from] / lengthInMeters[to];
+        }
+
+        if (category === "weight") {
+            const weightInKg = {
+                "Kilograms": 1,
+                "Grams": 0.001,
+                "Pounds": 0.453592
+            };
+            result = value * weightInKg[from] / weightInKg[to];
+        }
+
+        if (category === "temperature") {
+            if (from === to) {
+                result = value;
+            } else if (from === "Celsius") {
+                result = to === "Fahrenheit" ? (value * 9/5) + 32 :
+                         to === "Kelvin" ? value + 273.15 : value;
+            } else if (from === "Fahrenheit") {
+                result = to === "Celsius" ? (value - 32) * 5/9 :
+                         to === "Kelvin" ? ((value - 32) * 5/9) + 273.15 : value;
+            } else if (from === "Kelvin") {
+                result = to === "Celsius" ? value - 273.15 :
+                         to === "Fahrenheit" ? ((value - 273.15) * 9/5) + 32 : value;
+            }
+        }
+
+        document.getElementById("result").innerText =
+            `${value} ${from} = ${result.toFixed(4)} ${to}`;
+    }
+
+    updateUnits();
+</script>
+
+</body>
+</html>
